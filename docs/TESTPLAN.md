@@ -1,34 +1,36 @@
-# COBOL 應用程式測試計劃
+# COBOL Application Test Plan
 
-此測試計劃包含目前 COBOL 應用程式中可驗證的業務邏輯。它可用於與利害關係人確認行為，並作為後續轉換到 Node.js 應用程式時的測試基礎。
+This test plan covers the current COBOL application business logic and implementation. It is intended for stakeholder validation and as a reference for later creating unit and integration tests in a Node.js application.
 
-| 測試用例ID | 測試用例描述 | 前提條件 | 測試步驟 | 預期結果 | 實際結果 | 狀態（通過/失敗） | 評論 |
+| Test Case ID | Test Case Description | Pre-conditions | Test Steps | Expected Result | Actual Result | Status (Pass/Fail) | Comments |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| TC-001 | 檢視帳戶餘額 | 程式正常啟動 | 1. 啟動應用程式
-2. 輸入 `1`
- | 顯示當前餘額，預設為 `1000.00` |  |  | 顯示正確的初始餘額 |
-| TC-002 | 存款操作 | 程式正常啟動，帳戶餘額為 `1000.00` | 1. 啟動應用程式
-2. 輸入 `2`
-3. 輸入存款金額 `200.00`
- | 讀取當前餘額並將新金額寫回，顯示 `1200.00` |  |  | 應用存款後更新餘額 |
-| TC-003 | 提款操作 - 餘額足夠 | 程式正常啟動，帳戶餘額 >= 提款金額 | 1. 啟動應用程式
-2. 輸入 `3`
-3. 輸入提款金額 `300.00`
- | 如果餘額足夠，從帳戶中扣除金額並顯示更新後餘額 |  |  | 應用提款後更新餘額 |
-| TC-004 | 提款操作 - 餘額不足 | 程式正常啟動，帳戶餘額小於提款金額 | 1. 啟動應用程式
-2. 輸入 `3`
-3. 輸入提款金額 `2000.00`
- | 顯示 `Insufficient funds for this debit.`，不更新帳戶餘額 |  |  | 應防止透支，餘額保持不變 |
-| TC-005 | 無效選項處理 | 程式正常啟動 | 1. 啟動應用程式
-2. 輸入 `5` 或其他無效選項 | 顯示 `Invalid choice, please select 1-4.`，繼續顯示選單 |  |  | 應避免崩潰並提示正確選項 |
-| TC-006 | 退出程式 | 程式正常啟動 | 1. 啟動應用程式
-2. 輸入 `4` | 程式顯示 `Exiting the program. Goodbye!` 並結束執行 |  |  | 應正常終止進程 |
+| TC-001 | View account balance | Application starts successfully | 1. Start the application
+2. Enter `1` | The application reads the current balance and displays `1000.00` |  |  | Verify the initial account balance is shown correctly |
+| TC-002 | Credit account | Application starts successfully and current balance is `1000.00` | 1. Start the application
+2. Enter `2`
+3. Enter credit amount `200.00` | The application reads the current balance, adds `200.00`, writes the updated balance, and displays `1200.00` |  |  | Verify balance updates correctly after credit |
+| TC-003 | Debit account with sufficient balance | Application starts successfully and current balance is `1000.00` or higher | 1. Start the application
+2. Enter `3`
+3. Enter debit amount `300.00` | The application reads the current balance, verifies sufficient funds, subtracts `300.00`, writes the updated balance, and displays `700.00` |  |  | Verify debit reduces balance correctly when funds are sufficient |
+| TC-004 | Debit account with insufficient balance | Application starts successfully and current balance is less than withdrawal amount | 1. Start the application
+2. Enter `3`
+3. Enter debit amount `2000.00` | The application reads the balance, finds it insufficient, displays `Insufficient funds for this debit.`, and does not update the balance |  |  | Verify insufficient funds are rejected and balance remains unchanged |
+| TC-005 | Handle invalid menu option | Application starts successfully | 1. Start the application
+2. Enter `5` or another invalid option | The application displays `Invalid choice, please select 1-4.` and returns to the menu without crashing |  |  | Verify invalid input is handled gracefully |
+| TC-006 | Exit application | Application starts successfully | 1. Start the application
+2. Enter `4` | The application displays `Exiting the program. Goodbye!` and terminates |  |  | Verify the application exits cleanly |
 
-## 覆蓋的業務邏輯
+## Covered Business Logic
 
-- 單一帳戶的當前餘額讀取與顯示。
-- 存款交易：讀取現有餘額、增加金額、寫回更新後餘額。
-- 提款交易：讀取現有餘額、檢查是否足夠、扣款、寫回更新後餘額。
-- 不足餘額時拒絕提款並顯示錯誤訊息。
-- 無效選單選項的錯誤處理。
-- 正常退出流程。
+- Read and display the current balance for a single account.
+- Credit transactions: read the balance, add the credit amount, write the updated balance.
+- Debit transactions: read the balance, verify sufficient funds, subtract the debit amount, write the updated balance.
+- Reject debit transactions when funds are insufficient and display an error message.
+- Handle invalid menu selections with an error prompt and return to the main menu.
+- Exit the application cleanly on user request.
+
+## Notes for Node.js migration
+
+- The current COBOL app maintains a single account balance in memory for the duration of the session.
+- Tests should capture both the display behavior and the underlying balance update rules.
+- When migrating, preserve the same business rules and error messages for stakeholder validation.
